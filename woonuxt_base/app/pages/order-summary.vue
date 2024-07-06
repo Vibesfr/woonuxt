@@ -109,7 +109,78 @@ useSeoMeta({
       </div>
       <div v-if="order && !isGuest" class="flex-1 w-full">
         <!-- Existing order details code -->
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="mb-2 text-xs text-gray-400 uppercase">{{ $t('messages.shop.order') }}</div>
+            <div class="leading-none">#{{ order.databaseId! }}</div>
+          </div>
+          <div>
+            <div class="mb-2 text-xs text-gray-400 uppercase">{{ $t('messages.general.date') }}</div>
+            <div class="leading-none">{{ formatDate(order.date!) }}</div>
+          </div>
+          <div>
+            <div class="mb-2 text-xs text-gray-400 uppercase">{{ $t('messages.general.status') }}</div>
+            <OrderStatusLabel :order="order" />
+          </div>
+          <div>
+            <div class="mb-2 text-xs text-gray-400 uppercase">{{ $t('messages.general.paymentMethod') }}</div>
+            <div class="leading-none">{{ order.paymentMethodTitle }}</div>
+          </div>
+        </div>
 
+        <hr class="my-8" />
+
+        <div class="grid gap-2">
+          <div v-if="order.lineItems" v-for="item in order.lineItems.nodes" :key="item.id" class="flex items-center justify-between gap-8">
+            <NuxtLink v-if="item.product?.node" :to="`/product/${item.product.node.slug}`">
+              <NuxtImg
+                  class="w-16 h-16 rounded-xl"
+                  :src="item.variation?.node?.image?.sourceUrl || item.product.node?.image?.sourceUrl || '/images/placeholder.png'"
+                  :alt="item.variation?.node?.image?.altText || item.product.node?.image?.altText || 'Product image'"
+                  :title="item.variation?.node?.image?.title || item.product.node?.image?.title || 'Product image'"
+                  width="64"
+                  height="64"
+                  loading="lazy" />
+            </NuxtLink>
+            <div class="flex-1 leading-tight">
+              {{ item.variation ? item.variation?.node?.name : item.product?.node.name! }}
+            </div>
+            <div class="text-sm text-gray-600">Qty. {{ item.quantity }}</div>
+            <span class="text-sm font-semibold">{{ formatPrice(item.total!) }}</span>
+          </div>
+        </div>
+
+        <hr class="my-8" />
+
+        <div v-if="downloadableItems.length && !orderIsNotCompleted">
+          <DownloadableItems :downloadableItems="downloadableItems" />
+          <hr class="my-8" />
+        </div>
+
+        <div>
+          <div class="flex justify-between">
+            <span>{{ $t('messages.shop.subtotal') }}</span>
+            <span>{{ order.subtotal }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span>{{ $t('messages.general.tax') }}</span>
+            <span>{{ order.totalTax }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span>{{ $t('messages.general.shipping') }}</span>
+            <span>{{ order.shippingTotal }}</span>
+          </div>
+          <div v-if="hasDiscount" class="flex justify-between text-primary">
+            <span>{{ $t('messages.shop.discount') }}</span>
+            <span>- {{ order.discountTotal }}</span>
+          </div>
+          <hr class="my-8" />
+          <div class="flex justify-between">
+            <span class>{{ $t('messages.shop.total') }}</span>
+            <span class="font-semibold">{{ order.total }}</span>
+          </div>
+        </div>
+      </div>
         <!-- Tracking information section -->
         <div v-if="trackingInfo.length">
           <h2 class="text-lg font-semibold">Tracking Information</h2>
