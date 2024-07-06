@@ -2,6 +2,11 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4,
   },
+  runtimeConfig: {
+    public: {
+      apiUrl: process.env.API_URL,
+    }
+  },
 
   // Get all the pages, components, composables and plugins from the parent theme
   extends: ['./woonuxt_base'],

@@ -6,6 +6,7 @@ const { customer } = useAuth();
 const { formatDate, formatPrice } = useHelpers();
 const { t } = useI18n();
 
+const config = useRuntimeConfig()
 const order = ref<Order>({});
 const trackingInfo = ref([]);
 const fetchDelay = ref<boolean>(query.fetch_delay === 'true');
@@ -46,7 +47,7 @@ async function getOrder() {
 
 async function getTrackingInfo() {
   try {
-    const backendUrl = import.meta.env.VITE_BACK_END_URL; // Use the environment variable
+    const backendUrl = config.public.apiUrl; // Use the environment variable
 
     const response = await fetch(`${backendUrl}/wp-json/trackship/v1/get_tracking_info`, {
       method: 'POST',
