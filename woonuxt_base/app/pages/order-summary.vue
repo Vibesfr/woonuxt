@@ -13,6 +13,7 @@ const fetchDelay = ref<boolean>(query.fetch_delay === 'true');
 const delayLength = 2500;
 const isLoaded = ref<boolean>(false);
 const errorMessage = ref('');
+const retryCount = ref(0);
 
 const isGuest = computed(() => !customer.value?.databaseId);
 const isSummaryPage = computed<boolean>(() => name === 'order-summary');
@@ -27,7 +28,7 @@ onBeforeMount(() => {
 
 onMounted(async () => {
   await getOrder();
-  await getTrackingInfo();
+  await tryGetTrackingInfo();
   if (isCheckoutPage.value && fetchDelay.value && orderIsNotCompleted.value) {
     setTimeout(() => {
       getOrder();
@@ -43,6 +44,19 @@ async function getOrder() {
     errorMessage.value = err?.gqlErrors?.[0].message || 'Could not find order';
   }
   isLoaded.value = true;
+}
+
+async function tryGetTrackingInfo() {
+  if (customer.value && customer.value.email) {
+    await getTrackingInfo();
+  } else if (retryCount.value < 5) {
+    setTimeout(async () => {
+      retryCount.value++;
+      await tryGetTrackingInfo();
+    }, 1000);
+  } else {
+    errorMessage.value = 'Customer data not available';
+  }
 }
 
 async function getTrackingInfo() {
@@ -73,7 +87,7 @@ async function getTrackingInfo() {
 const refreshOrder = async () => {
   isLoaded.value = false;
   await getOrder();
-  await getTrackingInfo();
+  await tryGetTrackingInfo();
 };
 
 useSeoMeta({
@@ -84,18 +98,13 @@ useSeoMeta({
 </script>
 
 <template>
-  <div
-      class="w-full min-h-[600px] flex items-center p-8 text-gray-800 md:bg-white md:rounded-xl md:mx-auto md:shadow-lg md:my-24 md:mt-8 md:max-w-3xl md:p-16 flex-col">
+  <div class="w-full min-h-[600px] flex items-center p-8 text-gray-800 md:bg-white md:rounded-xl md:mx-auto md:shadow-lg md:my-24 md:mt-8 md:max-w-3xl md:p-16 flex-col">
     <LoadingIcon v-if="!isLoaded" class="flex-1" />
     <template v-else>
       <div class="w-full">
         <template v-if="isSummaryPage">
           <div class="flex items-center gap-4">
-            <NuxtLink
-                to="/my-account?tab=orders"
-                class="inline-flex items-center justify-center p-2 border rounded-md"
-                title="Back to orders"
-                aria-label="Back to orders">
+            <NuxtLink to="/my-account?tab=orders" class="inline-flex items-center justify-center p-2 border rounded-md" title="Back to orders" aria-label="Back to orders">
               <Icon name="ion:chevron-back-outline" />
             </NuxtLink>
             <h1 class="text-xl font-semibold">{{ $t('messages.shop.orderSummary') }}</h1>
@@ -104,13 +113,7 @@ useSeoMeta({
         <template v-else-if="isCheckoutPage">
           <div class="flex items-center justify-between w-full mb-2">
             <h1 class="text-xl font-semibold">{{ $t('messages.shop.orderReceived') }}</h1>
-            <button
-                v-if="orderIsNotCompleted"
-                type="button"
-                class="inline-flex items-center justify-center p-2 bg-white border rounded-md"
-                title="Refresh order"
-                aria-label="Refresh order"
-                @click="refreshOrder">
+            <button v-if="orderIsNotCompleted" type="button" class="inline-flex items-center justify-center p-2 bg-white border rounded-md" title="Refresh order" aria-label="Refresh order" @click="refreshOrder">
               <Icon name="ion:refresh-outline" />
             </button>
           </div>
