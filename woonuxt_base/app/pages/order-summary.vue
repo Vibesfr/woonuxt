@@ -84,13 +84,18 @@ useSeoMeta({
 </script>
 
 <template>
-  <div class="w-full min-h-[600px] flex items-center p-8 text-gray-800 md:bg-white md:rounded-xl md:mx-auto md:shadow-lg md:my-24 md:mt-8 md:max-w-3xl md:p-16 flex-col">
+  <div
+      class="w-full min-h-[600px] flex items-center p-8 text-gray-800 md:bg-white md:rounded-xl md:mx-auto md:shadow-lg md:my-24 md:mt-8 md:max-w-3xl md:p-16 flex-col">
     <LoadingIcon v-if="!isLoaded" class="flex-1" />
     <template v-else>
       <div class="w-full">
         <template v-if="isSummaryPage">
           <div class="flex items-center gap-4">
-            <NuxtLink to="/my-account?tab=orders" class="inline-flex items-center justify-center p-2 border rounded-md" title="Back to orders" aria-label="Back to orders">
+            <NuxtLink
+                to="/my-account?tab=orders"
+                class="inline-flex items-center justify-center p-2 border rounded-md"
+                title="Back to orders"
+                aria-label="Back to orders">
               <Icon name="ion:chevron-back-outline" />
             </NuxtLink>
             <h1 class="text-xl font-semibold">{{ $t('messages.shop.orderSummary') }}</h1>
@@ -99,7 +104,13 @@ useSeoMeta({
         <template v-else-if="isCheckoutPage">
           <div class="flex items-center justify-between w-full mb-2">
             <h1 class="text-xl font-semibold">{{ $t('messages.shop.orderReceived') }}</h1>
-            <button v-if="orderIsNotCompleted" type="button" class="inline-flex items-center justify-center p-2 bg-white border rounded-md" title="Refresh order" aria-label="Refresh order" @click="refreshOrder">
+            <button
+                v-if="orderIsNotCompleted"
+                type="button"
+                class="inline-flex items-center justify-center p-2 bg-white border rounded-md"
+                title="Refresh order"
+                aria-label="Refresh order"
+                @click="refreshOrder">
               <Icon name="ion:refresh-outline" />
             </button>
           </div>
@@ -108,7 +119,6 @@ useSeoMeta({
         <hr class="my-8" />
       </div>
       <div v-if="order && !isGuest" class="flex-1 w-full">
-        <!-- Existing order details code -->
         <div class="flex items-center justify-between">
           <div>
             <div class="mb-2 text-xs text-gray-400 uppercase">{{ $t('messages.shop.order') }}</div>
@@ -181,36 +191,33 @@ useSeoMeta({
           </div>
         </div>
       </div>
-        <!-- Tracking information section -->
-        <div v-if="trackingInfo.length">
-          <h2 class="text-lg font-semibold">Tracking Information</h2>
-          <div v-for="info in trackingInfo" :key="info.tracking_number" class="tracking-info">
-            <div>
-              <span class="font-semibold">Carrier:</span> {{ info.carrier }}
-            </div>
-            <div>
-              <span class="font-semibold">Tracking Number:</span> {{ info.tracking_number }}
-            </div>
-            <div>
-              <span class="font-semibold">Date Shipped:</span> {{ formatDate(info.date_shipped) }}
-            </div>
-            <div>
-              <span class="font-semibold">Status:</span> {{ info.status }}
-            </div>
-            <div v-if="info.est_delivery_date">
-              <span class="font-semibold">Estimated Delivery Date:</span> {{ formatDate(info.est_delivery_date) }}
-            </div>
-            <div v-if="info.events.length">
-              <h3 class="font-semibold">Tracking Events:</h3>
-              <ul>
-                <li v-for="event in info.events" :key="event.date">{{ event.date }}: {{ event.status }}</li>
-              </ul>
-            </div>
+      <!-- Tracking information section -->
+      <div v-if="trackingInfo.length">
+        <h2 class="text-lg font-semibold">Tracking Information</h2>
+        <div v-for="info in trackingInfo" :key="info.tracking_number" class="tracking-info">
+          <div>
+            <span class="font-semibold">Carrier:</span> {{ info.carrier }}
           </div>
-          <hr class="my-8" />
+          <div>
+            <span class="font-semibold">Tracking Number:</span> {{ info.tracking_number }}
+          </div>
+          <div>
+            <span class="font-semibold">Date Shipped:</span> {{ formatDate(info.date_shipped) }}
+          </div>
+          <div>
+            <span class="font-semibold">Status:</span> {{ info.status }}
+          </div>
+          <div v-if="info.est_delivery_date">
+            <span class="font-semibold">Estimated Delivery Date:</span> {{ formatDate(info.est_delivery_date) }}
+          </div>
+          <div v-if="info.events.length">
+            <h3 class="font-semibold">Tracking Events:</h3>
+            <ul>
+              <li v-for="event in info.events" :key="event.date">{{ event.date }}: {{ event.status }}</li>
+            </ul>
+          </div>
         </div>
-
-        <!-- Existing order details code continues -->
+        <hr class="my-8" />
       </div>
       <div v-else-if="errorMessage" class="flex flex-col items-center justify-center flex-1 w-full gap-4 text-center">
         <Icon name="ion:sad-outline" size="96" class="text-gray-700" />
